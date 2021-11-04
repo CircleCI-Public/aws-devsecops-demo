@@ -1,0 +1,4 @@
+app:
+  applicationId: ${APP_ID:< Add your App ID here> }
+  env: ${APP_ENV:dev}
+  host: ${APP_HOST:http://localhost:5000}
