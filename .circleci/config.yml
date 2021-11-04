@@ -130,7 +130,7 @@ workflows:
           requires:
             - scan_build_docker_image
           docker-network: host
-          app-id: bdf5d6af-4c4f-43d9-ba1b-ee305873cb6c
+          app-id: < Add your Stackhawk App ID here>
           steps:
             - checkout
             - run:
