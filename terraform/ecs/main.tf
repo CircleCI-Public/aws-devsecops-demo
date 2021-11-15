@@ -1,11 +1,9 @@
 terraform {
   required_version = ">= 0.13.5"
-  backend "remote" {
-    organization = "< Add your Terraform Cloud Organization here >"
-
-    workspaces {
-      name = "aws-devsecops-demo"
-    }
+  backend "s3" {
+    bucket = "aws-devsecops-demo"
+    key    = "terraform/state"
+    region = "us-east-1"
   }
 }
 
