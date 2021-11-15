@@ -1,1 +1,1 @@
-# devrel-content-template
+# CircleCI and AWS DevSecOps Demo
