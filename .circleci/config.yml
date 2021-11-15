@@ -1,10 +1,9 @@
 version: 2.1
 orbs:
+  aws-ecr: circleci/aws-ecr@7.2.0
   snyk: snyk/snyk@0.1.0
   stackhawk: stackhawk/stackhawk@1.0.3
-  aws-cli: circleci/aws-cli@2.0.2
   node: circleci/node@4.2.0
-  docker: circleci/docker@1.5.0
   terraform: circleci/terraform@3.0.0
 jobs:
   run_tests:
@@ -40,30 +39,30 @@ jobs:
       image: ubuntu-2004:202101-01
     resource_class: medium
     steps:
-      - checkout  
-      - docker/check
-      - docker/build:
-          image: $DOCKER_LOGIN/$CIRCLE_PROJECT_REPONAME
+      - checkout
+      - aws-ecr/build-image:
+          ecr-login: true
+          region: AWS_REGION
+          account-url: AWS_ECR_ACCOUNT_URL
+          repo: $AWS_ECR_REPO
           tag: 0.1.<< pipeline.number >>
       - snyk/scan:
-          docker-image-name: $DOCKER_LOGIN/$CIRCLE_PROJECT_REPONAME:0.1.<< pipeline.number >>
+          docker-image-name: $AWS_ECR_ACCOUNT_URL/$AWS_ECR_REPO:0.1.<< pipeline.number >>
           fail-on-issues: false
           monitor-on-build: false
           severity-threshold: high
           target-file: Dockerfile
           token-variable: SNYK_TOKEN
-      - docker/push:
-          image: $DOCKER_LOGIN/$CIRCLE_PROJECT_REPONAME
-          tag: 0.1.<< pipeline.number >>
+      - aws-ecr/push-image:
+          account-url: AWS_ECR_ACCOUNT_URL
+          repo: $AWS_ECR_REPO
+          tag: 0.1.<< pipeline.number >>          
   terraform_deploy_aws_ecs:
     machine:
       image: ubuntu-2004:202101-01
     resource_class: medium
     steps:
       - checkout
-      - run:
-          name: Create .terraformrc file locally
-          command: echo "credentials \"app.terraform.io\" {token = \"$TERRAFORM_TOKEN\"}" > $HOME/.terraformrc
       - terraform/install:
           terraform_version: "1.0.2"
           arch: "amd64"
@@ -76,7 +75,7 @@ jobs:
           name: Terraform apply
           command: |
             terraform -chdir=./terraform/ecs apply \
-              -var docker_img_name=${DOCKER_LOGIN}/${CIRCLE_PROJECT_REPONAME} \
+              -var docker_img_name=$AWS_ECR_ACCOUNT_URL/$AWS_ECR_REPO \
               -var docker_img_tag=0.1.<< pipeline.number >> \
               -var key_pair=devrel-angel-rivera \
               -auto-approve
@@ -130,13 +129,14 @@ workflows:
           requires:
             - scan_build_docker_image
           docker-network: host
-          app-id: < Add your Stackhawk App ID here>
+          app-id: bdf5d6af-4c4f-43d9-ba1b-ee305873cb6c
           steps:
             - checkout
+            - aws-ecr/ecr-login
             - run:
                 name: Run Stackhawk Scan
                 command: |
-                  docker run -d --rm -p5000:5000 $DOCKER_LOGIN/$CIRCLE_PROJECT_REPONAME:0.1.<< pipeline.number >>
+                  docker run -d --rm -p5000:5000 $AWS_ECR_ACCOUNT_URL/$AWS_ECR_REPO:0.1.<< pipeline.number >>
       - terraform_deploy_aws_ecs:
           requires:
             - stackhawk/hawkscan-local    
