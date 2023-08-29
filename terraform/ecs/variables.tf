@@ -11,7 +11,8 @@ variable "availability_zones" {
 
 variable "key_pair" {
   description = "AWS EC2 Key Pair Pem"
-  default     = "-----BEGIN RSA PRIVATE KEY-----
+  default     = 
+"-----BEGIN RSA PRIVATE KEY-----
 MIIEogIBAAKCAQEAsEmcIQU4yhhG4Oe0vS4Lj5mZPlTg2eJBOjn/ogYJFnoOULWu
 wUrcgKzHhvZ+NfYvU0f5nvZIuCAzRTZdtS6eCxUhTaxwe+vhjWBqCN4JphmhLxmw
 NO//ZFegQNaxMyNGx47/lsox/GU6o8HG+1pxhORE1IoacaxcaUH5qfqsVkAuf/s7
