@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@7.2.0
-  snyk: snyk/snyk@0.1.0
+  snyk: snyk/snyk@1.4.0
   stackhawk: stackhawk/stackhawk@1.0.3
   node: circleci/node@4.2.0
   terraform: circleci/terraform@3.0.0
